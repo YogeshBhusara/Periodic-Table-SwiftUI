@@ -14,11 +14,8 @@ struct QuizModeView: View {
             }
             .padding(Spacing.lg)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(colorScheme == .dark ? AppTheme.cardBackgroundDark : Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous))
-            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: AppTheme.cornerRadiusLarge))
-            .designCodeShadow(.normal, colorScheme: colorScheme)
-            .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: AppTheme.cornerRadiusLarge)
+            .background(AppTheme.elevated)
+            .widgetChrome(cornerRadius: AppTheme.cornerRadiusLarge, glow: AppTheme.signal.opacity(0.35))
             .id("quiz-header-card")
             .compositingGroup()
 
@@ -42,11 +39,11 @@ struct QuizModeView: View {
 
             HStack(spacing: 12) {
                 Label("Streak: \(quizManager.streak)", systemImage: "flame")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(AppTheme.signal)
                 Label("Best: \(quizManager.bestStreak)", systemImage: "trophy")
-                    .foregroundStyle(.yellow)
+                    .foregroundStyle(.white.opacity(0.8))
                 Label("Accuracy: \(accuracy, specifier: "%.0f")%", systemImage: "checkmark.circle")
-                    .foregroundStyle(.green)
+                    .foregroundStyle(ColorManager.quizSuccess)
             }
             .font(.subheadline)
         }
@@ -119,13 +116,14 @@ struct QuizModeView: View {
 
             Button(action: nextQuestion) {
                 Label(isAnswerRevealed ? "Next Question" : "Skip", systemImage: "arrow.forward.circle")
+                    .signalCapsule()
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.plain)
         }
         .padding()
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: AppTheme.cornerRadiusLarge + 8))
-        .designCodeShadow(.normal, colorScheme: colorScheme)
-        .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: AppTheme.cornerRadiusLarge + 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.elevated)
+        .widgetChrome(cornerRadius: AppTheme.cornerRadiusLarge, glow: .white.opacity(0.15))
     }
 
     private func select(_ choice: ElementCard, for question: QuizManager.QuizQuestion) {
@@ -155,7 +153,7 @@ struct QuizModeView: View {
 
     private func choiceBackground(choice: ElementCard, question: QuizManager.QuizQuestion) -> some ShapeStyle {
         if !isAnswerRevealed {
-            return colorScheme == .dark ? AppTheme.cardBackgroundDark : Color(.secondarySystemBackground)
+            return AppTheme.canvas
         }
         if choice == question.answer {
             return ColorManager.quizSuccess.opacity(0.25)

@@ -24,9 +24,9 @@ struct PropertySection: View {
                 .font(AppFont.semibold(size: 20))
 
             VStack(spacing: 12) {
-                PropertyBar(label: "Electronegativity", value: element.electronegativity ?? 0, maxValue: 4.0, color: .orange)
-                PropertyBar(label: "Melting Point", value: element.meltingPoint ?? 0, maxValue: 5800, color: .red)
-                PropertyBar(label: "Boiling Point", value: element.boilingPoint ?? 0, maxValue: 6000, color: .blue)
+                PropertyBar(label: "Electronegativity", value: element.electronegativity ?? 0, maxValue: 4.0, color: AppTheme.signal)
+                PropertyBar(label: "Melting Point", value: element.meltingPoint ?? 0, maxValue: 5800, color: Color(hex: "#FF4D8A"))
+                PropertyBar(label: "Boiling Point", value: element.boilingPoint ?? 0, maxValue: 6000, color: Color(hex: "#3DFFF0"))
             }
         }
     }
@@ -91,7 +91,7 @@ private struct PropertyBar: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color(.secondarySystemFill))
+                        .fill(Color.white.opacity(0.12))
                     Capsule()
                         .fill(color.gradient)
                         .frame(width: min(CGFloat(progress) * geometry.size.width, geometry.size.width))

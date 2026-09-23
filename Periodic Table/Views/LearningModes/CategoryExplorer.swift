@@ -45,37 +45,32 @@ private struct CategoryCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text(category.categoryName)
-                        .font(.headline)
+                        .font(AppFont.semibold(size: 16))
+                        .foregroundStyle(.white)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                     Spacer()
-                    Image(systemName: isSelected ? "checkmark.circle" : "circle")
-                        .foregroundStyle(Color.white.opacity(0.9))
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(isSelected ? AppTheme.signal : Color.white.opacity(0.7))
                         .font(.title3)
                 }
 
                 Text("\(count) elements")
-                    .font(.caption)
-                    .foregroundStyle(Color.white.opacity(0.8))
+                    .font(AppFont.eyebrow(size: 12))
+                    .tracking(0.6)
+                    .foregroundStyle(.white.opacity(0.75))
             }
             .padding(18)
             .frame(maxWidth: .infinity, minHeight: 120, alignment: .leading)
-            .background(
-                LinearGradient(
-                    colors: [
-                        ColorManager.shared.color(for: category, colorScheme: colorScheme).opacity(0.85),
-                        ColorManager.shared.color(for: category, colorScheme: colorScheme)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+            .background(CategoryMeshFill(category: category))
+            .widgetChrome(
+                cornerRadius: AppTheme.cornerRadiusLarge,
+                glow: isSelected ? ColorManager.shared.color(for: category, colorScheme: colorScheme) : .clear
             )
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.white.opacity(isSelected ? 0.6 : 0.2), lineWidth: isSelected ? 3 : 1)
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
+                    .strokeBorder(AppTheme.signal.opacity(isSelected ? 0.9 : 0), lineWidth: 2)
             )
-            .shadow(color: ColorManager.shared.color(for: category, colorScheme: colorScheme).opacity(0.35), radius: 12, x: 0, y: 10)
         }
         .buttonStyle(.plain)
     }

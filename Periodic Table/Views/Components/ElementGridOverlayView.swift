@@ -2,7 +2,7 @@
 //  ElementGridOverlayView.swift
 //  Periodic Table
 //
-//  Full-screen grid of element cards (5 per row) with same glass effect as element cards.
+//  Full-screen element picker. Cells use the same atmospheric mesh as the carousel cards.
 //
 
 import SwiftUI
@@ -12,33 +12,36 @@ struct ElementGridOverlayView: View {
     var namespace: Namespace.ID?
     let onSelect: (ElementCard) -> Void
     let onDismiss: () -> Void
-    @Environment(\.colorScheme) private var colorScheme
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 5)
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.4)
+            AppTheme.canvas.opacity(0.55)
                 .ignoresSafeArea()
                 .onTapGesture(perform: onDismiss)
 
             VStack(spacing: 0) {
                 HStack {
-                    Text("Select element")
-                        .font(AppFont.semibold(size: 17))
+                    Text("Elements")
+                        .font(AppFont.heading(size: 28, weight: .bold))
+                        .foregroundStyle(.white)
                     Spacer()
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
-                            .actionIcon(font: .title3.weight(.semibold))
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(AppTheme.canvas)
+                            .frame(width: 36, height: 36)
+                            .background(.white, in: Circle())
                     }
                     .buttonStyle(.plain)
-                    .glassCircleButton(diameter: 40, tint: .secondary)
+                    .accessibilityLabel("Close")
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 0))
+                .padding(.horizontal, Spacing.lg)
+                .padding(.top, Spacing.xl)
+                .padding(.bottom, Spacing.md)
 
-                ScrollView(.vertical, showsIndicators: true) {
+                ScrollView(.vertical, showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(elements) { element in
                             ElementGridCell(element: element, namespace: namespace)
@@ -48,13 +51,13 @@ struct ElementGridOverlayView: View {
                                 }
                         }
                     }
-                    .padding(16)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.bottom, Spacing.xxl)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemGroupedBackground))
-            .designCodeShadow(.strong, colorScheme: colorScheme)
+            .background(VibeCanvas(accent: AppTheme.signal))
             .ignoresSafeArea(edges: .bottom)
         }
     }
@@ -69,34 +72,17 @@ private struct ElementGridCell: View {
         ColorManager.shared.color(for: element.category, colorScheme: colorScheme)
     }
 
-    private var categoryGradient: LinearGradient {
-        LinearGradient(
-            colors: [categoryColor, categoryColor.opacity(0.6)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
     private var cellContent: some View {
-        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
-
-        return VStack(spacing: 6) {
-            Text("\(element.atomicNumber)")
-                .font(AppFont.mono(size: 13, weight: .bold))
-                .foregroundStyle(.secondary)
+        VStack(spacing: 4) {
+            DottedDisplay(text: AtomicDisplay.padded(element.atomicNumber), size: 18)
             Text(element.symbol)
-                .font(AppFont.heading(size: 17, weight: .heavy))
-                .foregroundStyle(.primary)
+                .font(AppFont.heading(size: 16, weight: .bold))
+                .foregroundStyle(.white)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(
-            shape
-                .fill(categoryGradient.opacity(colorScheme == .dark ? 0.45 : 0.55))
-        )
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
-        .designCodeShadow(.normal, colorScheme: colorScheme)
-        .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: 16)
+        .background(CategoryMeshFill(category: element.category))
+        .widgetChrome(cornerRadius: 16, glow: categoryColor.opacity(0.8))
     }
 
     var body: some View {
@@ -104,7 +90,6 @@ private struct ElementGridCell: View {
             if let namespace {
                 cellContent
                     .matchedGeometryEffect(id: "element-card-\(element.atomicNumber)", in: namespace)
-                    .glassEffectID("element-card-\(element.atomicNumber)", in: namespace)
             } else {
                 cellContent
             }

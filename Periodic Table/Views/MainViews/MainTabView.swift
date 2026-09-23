@@ -11,7 +11,6 @@ struct MainTabView: View {
     @EnvironmentObject private var dataStore: ElementDataStore
     @EnvironmentObject private var uiState: UIStateManager
     @EnvironmentObject private var quizManager: QuizManager
-    @Environment(\.colorScheme) private var colorScheme
     @Namespace private var cardNamespace
 
     var body: some View {
@@ -28,7 +27,9 @@ struct MainTabView: View {
                     Label(UIStateManager.AppTab.learn.title, systemImage: UIStateManager.AppTab.learn.systemImage)
                 }
         }
-        .tint(ColorManager.shared.color(for: uiState.selectedCategory ?? .unknown, colorScheme: colorScheme))
+        .tint(AppTheme.signal)
+        .preferredColorScheme(.dark)
+        .toolbarColorScheme(.dark, for: .tabBar)
         .sheet(isPresented: $uiState.isMenuPresented) {
             MenuFlyoutView()
                 .environmentObject(dataStore)
@@ -58,31 +59,37 @@ private struct MenuFlyoutView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    NavigationLink {
-                        FavoritesView()
-                            .environmentObject(dataStore)
-                            .environmentObject(uiState)
-                    } label: {
-                        Label(UIStateManager.AppTab.favorites.title, systemImage: UIStateManager.AppTab.favorites.systemImage)
-                    }
+            ZStack {
+                VibeCanvas(accent: AppTheme.signal)
+                List {
+                    Section {
+                        NavigationLink {
+                            FavoritesView()
+                                .environmentObject(dataStore)
+                                .environmentObject(uiState)
+                        } label: {
+                            Label(UIStateManager.AppTab.favorites.title, systemImage: UIStateManager.AppTab.favorites.systemImage)
+                        }
 
-                    NavigationLink {
-                        SettingsView()
-                            .environmentObject(uiState)
-                    } label: {
-                        Label(UIStateManager.AppTab.settings.title, systemImage: UIStateManager.AppTab.settings.systemImage)
+                        NavigationLink {
+                            SettingsView()
+                                .environmentObject(uiState)
+                        } label: {
+                            Label(UIStateManager.AppTab.settings.title, systemImage: UIStateManager.AppTab.settings.systemImage)
+                        }
                     }
                 }
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle("Menu")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }
+                    .foregroundStyle(AppTheme.signal)
                 }
             }
         }

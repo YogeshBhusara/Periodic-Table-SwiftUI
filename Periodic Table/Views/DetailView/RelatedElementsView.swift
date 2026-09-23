@@ -36,20 +36,21 @@ struct RelatedElementsView: View {
                     HStack(spacing: 16) {
                         ForEach(relatedElements) { related in
                             VStack(alignment: .leading, spacing: 6) {
-                                Text("\(related.atomicNumber)")
-                                    .font(.caption.bold())
-                                    .foregroundStyle(.secondary)
+                                DottedDisplay(text: AtomicDisplay.padded(related.atomicNumber), size: 22)
                                 Text(related.symbol)
-                                    .font(.headline)
+                                    .font(AppFont.heading(size: 22, weight: .bold))
+                                    .foregroundStyle(.white)
                                 Text(related.name)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .font(AppFont.eyebrow(size: 11))
+                                    .foregroundStyle(.white.opacity(0.75))
+                                    .lineLimit(2)
                             }
                             .padding(12)
-                            .frame(width: 110, height: 120, alignment: .topLeading)
-                            .background(
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .fill(Color(.secondarySystemBackground))
+                            .frame(width: 120, height: 128, alignment: .topLeading)
+                            .background(CategoryMeshFill(category: related.category))
+                            .widgetChrome(
+                                cornerRadius: 20,
+                                glow: ColorManager.shared.color(for: related.category)
                             )
                             .onTapGesture {
                                 HapticManager.shared.playSelectionChange()

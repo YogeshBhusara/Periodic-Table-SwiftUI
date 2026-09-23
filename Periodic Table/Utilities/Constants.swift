@@ -10,16 +10,24 @@
 
 import SwiftUI
 
-// MARK: - Core Style & Theme (Bold, Clear, Vibrant)
+// MARK: - Core Style & Theme
+// Near-black canvas, signal yellow, and large continuous corners.
+// Color lives inside widget cards; the canvas stays dark.
 
 enum AppTheme {
-    /// Deep charcoal – primary background
-    static let backgroundColorDark = Color(hex: "#121212")
-    /// Slightly lighter for cards and elevated surfaces
-    static let cardBackgroundDark = Color(hex: "#1F1F")
+    /// Near-black canvas
+    static let canvas = Color(hex: "#07070A")
+    /// Elevated panels sitting on the canvas
+    static let elevated = Color(hex: "#141418")
+    /// Primary action, waveforms, and ticks
+    static let signal = Color(hex: "#E6FF47")
 
-    static let cornerRadiusLarge: CGFloat = 20.0
-    static let cornerRadiusMedium: CGFloat = 12.0
+    static let backgroundColorDark = canvas
+    static let cardBackgroundDark = elevated
+
+    static let cornerRadiusHero: CGFloat = 32
+    static let cornerRadiusLarge: CGFloat = 28
+    static let cornerRadiusMedium: CGFloat = 18
 }
 
 /// DesignCode UI–style spacing scale (4pt grid). Use for padding, margins, and gaps.
@@ -46,7 +54,7 @@ enum Spacing {
 
 enum LayoutConstants {
     static let sectionPadding: CGFloat = Spacing.md
-    static let elementCardCornerRadius: CGFloat = AppTheme.cornerRadiusLarge
+    static let elementCardCornerRadius: CGFloat = AppTheme.cornerRadiusHero
     static let glassCircleButtonDiameter: CGFloat = 60
 }
 

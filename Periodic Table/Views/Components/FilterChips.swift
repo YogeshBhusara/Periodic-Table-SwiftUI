@@ -47,8 +47,8 @@ struct FilterChips: View {
     private func chipBackground(for category: ElementCategory?) -> some View {
         let isSelected = selectedCategory == category
         let fill = isSelected
-            ? ColorManager.shared.color(for: category ?? .unknown, colorScheme: colorScheme).opacity(0.25)
-            : Color(.secondarySystemBackground)
+            ? ColorManager.shared.color(for: category ?? .unknown, colorScheme: colorScheme).opacity(0.28)
+            : AppTheme.elevated
 
         Capsule()
             .fill(fill)

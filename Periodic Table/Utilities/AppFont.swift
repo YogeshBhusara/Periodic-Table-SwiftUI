@@ -2,8 +2,8 @@
 //  AppFont.swift
 //  Periodic Table
 //
-//  Typography: SF Pro Rounded (headings/symbol), SF Pro Text (body), SF Mono (data).
-//  Vibe: Bold, Clear, Vibrant.
+//  Typography: SF Pro Rounded for titles and symbols, SF Pro Text for body,
+//  SF Mono for data. Hero metrics use DottedDisplay (stippled numerals).
 //
 
 import SwiftUI
@@ -21,6 +21,11 @@ enum AppFont {
 
     /// SF Pro Rounded, Semibold, 20pt – element names, section headers
     static let heading2 = Font.system(size: 20, weight: .semibold, design: .rounded)
+
+    /// Small tracked label sitting above a hero metric
+    static func eyebrow(size: CGFloat = 13) -> Font {
+        Font.system(size: size, weight: .semibold, design: .rounded)
+    }
 
     /// Convenience: heading with custom size/weight (rounded)
     static func heading(size: CGFloat = 40, weight: Font.Weight = .heavy) -> Font {

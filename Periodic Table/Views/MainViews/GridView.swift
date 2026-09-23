@@ -16,8 +16,8 @@ struct GridView: View {
                 let size = proxy.size
                 let safeArea = proxy.safeAreaInsets
                 ZStack {
-                    backgroundGradient
-                    LiquidBlobBackground(color: accentColor)
+                    VibeCanvas(accent: accentColor)
+                        .animation(AnimationConstants.spotifyOpen, value: selectedIndex)
                     atomicNumberBackground(in: size)
                     content(for: size, safeArea: safeArea)
 
@@ -51,8 +51,11 @@ struct GridView: View {
                 }
                 .frame(width: size.width, height: size.height)
                 .animation(AnimationConstants.gridOverlaySpring, value: isElementGridPresented)
-                .navigationBarTitleDisplayMode(.inline)
-                .tint(accentColor)
+                .navigationTitle("Elements")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbarColorScheme(.dark, for: .navigationBar)
+                .toolbarBackground(.hidden, for: .navigationBar)
+                .tint(AppTheme.signal)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         AppMenu(isMenuPresented: $uiState.isMenuPresented)
@@ -104,11 +107,11 @@ struct GridView: View {
                     }
                 } label: {
                     Image(systemName: "square.grid.3x3")
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
-                        .background(accentColor, in: Circle())
-                        .designCodeShadow(.subtle, colorScheme: colorScheme)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(AppTheme.canvas)
+                        .frame(width: 58, height: 58)
+                        .background(AppTheme.signal, in: Circle())
+                        .shadow(color: AppTheme.signal.opacity(0.45), radius: 16, x: 0, y: 8)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Open element grid")
@@ -251,8 +254,8 @@ struct GridView: View {
                     refreshFilters()
                 ensureSelectionBounds()
             }
-            .buttonStyle(.borderedProminent)
-            .tint(accentColor)
+            .buttonStyle(.plain)
+            .signalCapsule()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -264,50 +267,18 @@ struct GridView: View {
 
         return Group {
             if let element = currentElement {
-                Text("\(element.atomicNumber)")
-                    .font(AppFont.displayMono(size: 200))
-                    .foregroundStyle(accentColor.opacity(colorScheme == .dark ? 0.22 : 0.18))
-                    .frame(width: size.width, height: size.height, alignment: .trailing)
-                    .offset(x: parallaxOffset)
-                    .allowsHitTesting(false)
+                DottedDisplay(
+                    text: AtomicDisplay.padded(element.atomicNumber),
+                    size: 210,
+                    color: .white.opacity(0.14)
+                )
+                .frame(width: size.width, height: size.height, alignment: .bottomTrailing)
+                .offset(x: 36 + parallaxOffset, y: 24)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
             }
         }
         .animation(AnimationConstants.spotifyOpen, value: selectedIndex)
-    }
-
-    private var backgroundGradient: some View {
-        let topColor = accentColor.opacity(colorScheme == .dark ? 0.7 : 0.9)
-        let bottomColor = accentColor.opacity(colorScheme == .dark ? 0.4 : 0.6)
-
-        return ZStack {
-            if colorScheme == .dark {
-                AppTheme.backgroundColorDark
-                    .ignoresSafeArea()
-            }
-            LinearGradient(
-                colors: [
-                    topColor,
-                    bottomColor
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .opacity(colorScheme == .dark ? 0.35 : 1)
-        }
-        .ignoresSafeArea()
-        .overlay(
-            RadialGradient(
-                colors: [
-                    Color.white.opacity(colorScheme == .dark ? 0.08 : 0.32),
-                    Color.clear
-                ],
-                center: .top,
-                startRadius: 0,
-                endRadius: 420
-            )
-            .blendMode(.screen)
-        )
-        .animation(AnimationConstants.spotifyOpen, value: accentColor)
     }
 
     // MARK: - Helpers

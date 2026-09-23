@@ -37,34 +37,10 @@ struct LearnView: View {
         return ColorManager.shared.color(for: category, colorScheme: colorScheme)
     }
 
-    private var backgroundGradient: some View {
-        let topColor = accentColor.opacity(colorScheme == .dark ? 0.7 : 0.9)
-        let bottomColor = accentColor.opacity(colorScheme == .dark ? 0.4 : 0.6)
-        return LinearGradient(
-            colors: [topColor, bottomColor],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
-        .overlay(
-            RadialGradient(
-                colors: [
-                    Color.white.opacity(colorScheme == .dark ? 0.08 : 0.32),
-                    Color.clear
-                ],
-                center: .top,
-                startRadius: 0,
-                endRadius: 420
-            )
-            .blendMode(.screen)
-        )
-    }
-
     var body: some View {
         NavigationStack {
             ZStack {
-                backgroundGradient
-                LiquidBlobBackground(color: accentColor)
+                VibeCanvas(accent: accentColor)
 
                 VStack(spacing: Spacing.xl) {
                     Picker("Learning Mode", selection: $selectedMode) {
@@ -95,9 +71,11 @@ struct LearnView: View {
                     .tabViewStyle(.page(indexDisplayMode: .never))
                 }
             }
-            .navigationTitle("Learning Lab")
-            .navigationBarTitleDisplayMode(.inline)
-            .tint(accentColor)
+            .navigationTitle("Learn")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .tint(AppTheme.signal)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     AppMenu(isMenuPresented: $uiState.isMenuPresented)

@@ -51,17 +51,20 @@ private struct ComparatorSelectionView: View {
                 } label: {
                     VStack(spacing: 8) {
                         if let element = selectedElement {
-                            Text(element.symbol)
-                                .font(.system(size: 36, weight: .bold, design: .rounded))
+                            DottedDisplay(text: element.symbol, size: 40)
                             Text(element.name)
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
+                                .font(AppFont.semibold(size: 14))
+                                .foregroundStyle(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
                         } else {
                             Text("Select")
-                                .font(.headline)
+                                .font(AppFont.heading(size: 20, weight: .semibold))
+                                .foregroundStyle(.white)
                             Text("element")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(AppFont.eyebrow(size: 12))
+                                .tracking(1.2)
+                                .textCase(.uppercase)
+                                .foregroundStyle(.white.opacity(0.55))
                         }
                     }
                     .frame(maxWidth: .infinity, minHeight: 120)
@@ -69,17 +72,26 @@ private struct ComparatorSelectionView: View {
                     .contentShape(Rectangle())
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
-                .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
-                .designCodeShadow(.normal, colorScheme: colorScheme)
-                .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: 24)
+                .background {
+                    if let element = selectedElement {
+                        CategoryMeshFill(category: element.category)
+                    } else {
+                        AppTheme.elevated
+                    }
+                }
+                .widgetChrome(
+                    cornerRadius: AppTheme.cornerRadiusLarge,
+                    glow: selectedElement.map { ColorManager.shared.color(for: $0.category, colorScheme: colorScheme) } ?? .clear
+                )
 
                 if selectedElement != nil {
                     Button {
                         removeSelection()
                     } label: {
-                        Image(systemName: "xmark.circle")
+                        Image(systemName: "xmark.circle.fill")
                             .font(.title2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white)
+                            .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
                     }
                     .buttonStyle(.plain)
                     .padding(Spacing.xs)
@@ -175,16 +187,27 @@ private struct ComparisonBars: View {
                     }
 
                     HStack(alignment: .bottom, spacing: 18) {
-                        bar(for: first.symbol, value: metric.firstValue, maxValue: metric.maxValue, formatted: metric.firstFormatted, color: .teal)
-                        bar(for: second.symbol, value: metric.secondValue, maxValue: metric.maxValue, formatted: metric.secondFormatted, color: .orange)
+                        bar(
+                            for: first.symbol,
+                            value: metric.firstValue,
+                            maxValue: metric.maxValue,
+                            formatted: metric.firstFormatted,
+                            color: ColorManager.shared.color(for: first.category, colorScheme: colorScheme)
+                        )
+                        bar(
+                            for: second.symbol,
+                            value: metric.secondValue,
+                            maxValue: metric.maxValue,
+                            formatted: metric.secondFormatted,
+                            color: ColorManager.shared.color(for: second.category, colorScheme: colorScheme)
+                        )
                     }
                 }
             }
         }
         .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .designCodeShadow(.normal, colorScheme: colorScheme)
-        .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: 24)
+        .background(AppTheme.elevated, in: RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous))
+        .widgetChrome(cornerRadius: AppTheme.cornerRadiusLarge, glow: AppTheme.signal.opacity(0.25))
     }
 
     private func bar(for symbol: String, value: Double, maxValue: Double, formatted: String, color: Color) -> some View {

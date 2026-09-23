@@ -5,108 +5,95 @@ struct ExpandedCardView: View {
     var namespace: Namespace.ID?
     @Environment(\.colorScheme) private var colorScheme
 
-    var body: some View {
-        let cardShape = RoundedRectangle(cornerRadius: LayoutConstants.elementCardCornerRadius, style: .continuous)
+    private var categoryColor: Color {
+        ColorManager.shared.color(for: element.category, colorScheme: colorScheme)
+    }
 
+    var body: some View {
         ZStack {
-            // Main glass card
-            cardSurface
-                .overlay(cardContent)
-                .designCodeShadow(.strong, colorScheme: colorScheme)
-                .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: LayoutConstants.elementCardCornerRadius)
-                .modifier(MatchedCardModifier(id: "element-card-\(element.atomicNumber)", namespace: namespace))
+            CategoryMeshFill(category: element.category)
+
+            ElementOrbitalView(element: element, height: 188)
+                .opacity(0.92)
+                .mask(
+                    LinearGradient(
+                        colors: [.white, .white.opacity(0.8), .clear],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, Spacing.xs)
         }
-        .compositingGroup()
-        .clipShape(cardShape)
+        .overlay(alignment: .bottom) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                Text(element.category.categoryName)
+                    .font(AppFont.eyebrow(size: 12))
+                    .tracking(1.4)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.white.opacity(0.72))
+
+                HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+                    DottedDisplay(
+                        text: AtomicDisplay.padded(element.atomicNumber),
+                        size: 84
+                    )
+                    Spacer(minLength: Spacing.xs)
+                    Text(element.symbol)
+                        .font(AppFont.heading(size: 44, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+
+                Text(element.name)
+                    .font(AppFont.heading(size: 22, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.92))
+
+                SignalWave()
+                    .frame(height: 28)
+                    .padding(.top, Spacing.xxs)
+
+                HStack(spacing: Spacing.md) {
+                    metric(title: "Melting", value: formattedTemperature(element.meltingPoint))
+                    metric(title: "Boiling", value: formattedTemperature(element.boilingPoint))
+                    Spacer(minLength: 0)
+                    Text(element.formattedAtomicMass)
+                        .font(AppFont.mono(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+            }
+            .padding(Spacing.xl)
+            .allowsHitTesting(false)
+        }
+        .widgetChrome(cornerRadius: LayoutConstants.elementCardCornerRadius, glow: categoryColor)
+        .modifier(MatchedCardModifier(id: "element-card-\(element.atomicNumber)", namespace: namespace))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(AccessibilityLabels.elementCard(element))
     }
 
-    @ViewBuilder
-    private var cardSurface: some View {
-        let shape = RoundedRectangle(cornerRadius: LayoutConstants.elementCardCornerRadius, style: .continuous)
-
-        shape
-            .fill(Color.clear)
-            .glassEffect(
-                .regular
-                    .interactive(),
-                in: .rect(cornerRadius: LayoutConstants.elementCardCornerRadius)
-            )
+    private func metric(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text(title.uppercased())
+                .font(AppFont.eyebrow(size: 10))
+                .tracking(1.1)
+                .foregroundStyle(.white.opacity(0.62))
+            Text(value)
+                .font(AppFont.mono(size: 13, weight: .medium))
+                .foregroundStyle(.white)
+        }
     }
 
     private func formattedTemperature(_ value: Double?) -> String {
         guard let value else { return "—" }
         return String(format: "%.0f K", value)
     }
-
-    private var cardContent: some View {
-        VStack(spacing: 0) {
-            // Top: 3D Bohr model (from CSV bohr_model_3d) or 2D orbital visualization; 3D allows rotation
-            ElementOrbitalView(element: element, height: 216)
-                .opacity(0.75)
-                .blendMode(.plusLighter)
-
-            Divider()
-                .background(Color.white.opacity(0.5))
-
-            // Bottom: element info + stats
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("\(element.atomicNumber)")
-                        .font(AppFont.mono(size: 12, weight: .bold))
-                        .foregroundStyle(.secondary)
-
-                    Text(element.symbol)
-                        .font(AppFont.heading(size: 40, weight: .heavy))
-
-                    Text(element.name)
-                        .font(AppFont.semibold(size: 17))
-                        .foregroundStyle(.primary)
-
-                    Text(element.formattedAtomicMass)
-                        .font(AppFont.mono(size: 12))
-                        .foregroundStyle(.secondary)
-                }
-
-                Text(element.category.categoryName)
-                    .font(AppFont.semibold(size: 15))
-                    .foregroundStyle(.primary)
-
-                HStack(spacing: Spacing.lg) {
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text("MELTING POINT")
-                            .font(AppFont.mono(size: 10))
-                            .foregroundStyle(.secondary)
-                        Text(formattedTemperature(element.meltingPoint))
-                            .font(AppFont.mono(size: 12))
-                            .foregroundStyle(.primary)
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text("BOILING POINT")
-                            .font(AppFont.mono(size: 10))
-                            .foregroundStyle(.secondary)
-                        Text(formattedTemperature(element.boilingPoint))
-                            .font(AppFont.mono(size: 12))
-                            .foregroundStyle(.primary)
-                    }
-                }
-            }
-            .padding(Spacing.lg)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
 }
 
 #if DEBUG
 #Preview {
     ExpandedCardView(element: .hydrogen, namespace: nil)
         .padding()
-        .background(Color(.systemGroupedBackground))
+        .frame(height: 520)
+        .background(AppTheme.canvas)
 }
 #endif
 
@@ -116,9 +103,7 @@ private struct MatchedCardModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         if let namespace {
-            content
-                .matchedGeometryEffect(id: id, in: namespace)
-                .glassEffectID(id, in: namespace)
+            content.matchedGeometryEffect(id: id, in: namespace)
         } else {
             content
         }

@@ -41,17 +41,9 @@ struct ElementDetailView: View {
             .onAppear {
                 contentAppeared = true
             }
-            .background(
-                LinearGradient(
-                    colors: [
-                        ColorManager.shared.color(for: element.category, colorScheme: colorScheme).opacity(0.25),
-                        Color(.systemBackground)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-            )
+            .background {
+                VibeCanvas(accent: categoryColor)
+            }
         }
         .interactiveDismissDisabled(false)
     }
@@ -61,63 +53,58 @@ struct ElementDetailView: View {
     }
 
     private var headerSection: some View {
-        VStack(spacing: Spacing.md) {
-            // Simple header mirroring card data (without card shell or orbital)
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                HStack(alignment: .top, spacing: Spacing.md) {
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text(element.symbol)
-                            .font(AppFont.heading(size: 40, weight: .heavy))
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            HStack(alignment: .top, spacing: Spacing.md) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text(element.category.categoryName)
+                        .font(AppFont.eyebrow(size: 12))
+                        .tracking(1.4)
+                        .textCase(.uppercase)
+                        .foregroundStyle(.white.opacity(0.72))
 
-                        Text(element.name)
-                            .font(AppFont.semibold(size: 22))
+                    DottedDisplay(
+                        text: AtomicDisplay.padded(element.atomicNumber),
+                        size: 64
+                    )
 
-                        Text("#\(element.atomicNumber)")
-                            .font(AppFont.body(size: 15))
-                            .foregroundStyle(.secondary)
-                    }
+                    Text(element.symbol)
+                        .font(AppFont.heading(size: 36, weight: .bold))
+                        .foregroundStyle(.white)
 
-                    Spacer()
-
-                    actionButtons
+                    Text(element.name)
+                        .font(AppFont.semibold(size: 18))
+                        .foregroundStyle(.white.opacity(0.9))
                 }
 
-                Text(element.category.categoryName)
-                    .font(AppFont.semibold(size: 15))
-                    .foregroundStyle(.primary)
+                Spacer(minLength: Spacing.sm)
 
-                HStack(spacing: Spacing.lg) {
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text("MELTING POINT")
-                            .font(AppFont.mono(size: 10))
-                            .foregroundStyle(.secondary)
-                        Text(formattedTemperature(element.meltingPoint))
-                            .font(AppFont.mono(size: 12))
-                            .foregroundStyle(.primary)
-                    }
-
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text("BOILING POINT")
-                            .font(AppFont.mono(size: 10))
-                            .foregroundStyle(.secondary)
-                        Text(formattedTemperature(element.boilingPoint))
-                            .font(AppFont.mono(size: 12))
-                            .foregroundStyle(.primary)
-                    }
-
-                    Spacer()
-                }
+                actionButtons
             }
-            .padding(Spacing.md)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .glassEffect(
-                .regular
-                    .tint(categoryColor)
-                    .interactive(),
-                in: .rect(cornerRadius: 20)
-            )
-            .designCodeShadow(.subtle, colorScheme: colorScheme)
-            .designCodeInnerGlow(colorScheme: colorScheme, cornerRadius: 20)
+
+            SignalWave()
+                .frame(height: 26)
+
+            HStack(spacing: Spacing.lg) {
+                detailMetric(title: "Melting", value: formattedTemperature(element.meltingPoint))
+                detailMetric(title: "Boiling", value: formattedTemperature(element.boilingPoint))
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(CategoryMeshFill(category: element.category))
+        .widgetChrome(glow: categoryColor)
+    }
+
+    private func detailMetric(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text(title.uppercased())
+                .font(AppFont.eyebrow(size: 10))
+                .tracking(1.1)
+                .foregroundStyle(.white.opacity(0.62))
+            Text(value)
+                .font(AppFont.mono(size: 13, weight: .medium))
+                .foregroundStyle(.white)
         }
     }
 
